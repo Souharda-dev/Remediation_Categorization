@@ -1,0 +1,36 @@
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM, Embedding, Dropout
+from tensorflow.keras.utils import to_categorical
+
+# Reshape for LSTM (samples, timesteps, features)
+X_train_reshaped = X_train.reshape(X_train.shape[0], 1, X_train.shape[1])
+X_test_reshaped = X_test.reshape(X_test.shape[0], 1, X_test.shape[1])
+
+# Convert labels to one-hot encoding
+y_train_categorical = to_categorical(y_train)
+y_test_categorical = to_categorical(y_test)
+
+# Build LSTM Model
+model = Sequential([
+    LSTM(128, input_shape=(1, X_train.shape[1]), return_sequences=True),
+    Dropout(0.2),
+    LSTM(64),
+    Dense(64, activation='relu'),
+    Dense(len(label_encoder.classes_), activation='softmax')
+])
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Train Model
+history = model.fit(
+    X_train_reshaped, 
+    y_train_categorical, 
+    epochs=10, 
+    batch_size=32, 
+    validation_data=(X_test_reshaped, y_test_categorical)
+)
+
+# Evaluate
+loss, accuracy = model.evaluate(X_test_reshaped, y_test_categorical)
+print(f"Test Accuracy: {accuracy*100:.2f}%")
