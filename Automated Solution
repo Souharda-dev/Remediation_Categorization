@@ -1,0 +1,19 @@
+# Example: Database of solutions (we received a mapping file which we had stored in SQL DB)
+solutions_db = {
+    "OS Issue": "Restart your system and update drivers.",
+    "Software Bug": "Reinstall the application or check for patches.",
+    "Access Problem": "Reset password or contact IT admin."
+}
+
+# Predict and suggest solution
+def predict_and_resolve(ticket_text):
+    cleaned_text = clean_text(ticket_text)
+    vectorized = tfidf.transform([cleaned_text]).toarray()
+    reshaped = vectorized.reshape(1, 1, vectorized.shape[1])
+    prediction = model.predict(reshaped)
+    predicted_label = label_encoder.inverse_transform([prediction.argmax()])[0]
+    return solutions_db.get(predicted_label, "Contact support for further assistance.")
+
+# Example Usage
+ticket = "My Windows keeps freezing"
+print(predict_and_resolve(ticket))  # Output: "Restart your system and update drivers."
